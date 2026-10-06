@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "go run ./cmd/api",
+    "worker": "go run ./cmd/worker",
     "build": "go build -o bin/api ./cmd/api",
     "test": "go test ./...",
     "lint": "go vet ./..."

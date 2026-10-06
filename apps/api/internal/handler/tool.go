@@ -22,20 +22,25 @@ type toolSpec struct {
 }
 
 // singleTool adalah kerangka handler wajib: validasi upload -> simpan sementara -> proses -> kirim hasil.
+// uploadErrorResponse menulis pesan error upload sesuai status HTTP-nya.
+func uploadErrorResponse(w http.ResponseWriter, err error, cfg UploadConfig) {
+	switch err {
+	case ErrUploadTooLarge:
+		WriteError(w, "upload terlalu besar atau tidak valid", http.StatusRequestEntityTooLarge)
+	case ErrNoFiles:
+		WriteError(w, "kirim file pada field 'files'", http.StatusBadRequest)
+	case ErrTooManyFiles:
+		WriteError(w, "terlalu banyak file (maks "+strconv.Itoa(cfg.MaxFiles)+")", http.StatusBadRequest)
+	default:
+		WriteError(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
 func singleTool(w http.ResponseWriter, r *http.Request, spec toolSpec) {
 	cfg := LoadUploadConfig()
 	files, err := ParseUploads(r, "files", cfg)
 	if err != nil {
-		switch err {
-		case ErrUploadTooLarge:
-			WriteError(w, "upload terlalu besar atau tidak valid", http.StatusRequestEntityTooLarge)
-		case ErrNoFiles:
-			WriteError(w, "kirim file pada field 'files'", http.StatusBadRequest)
-		case ErrTooManyFiles:
-			WriteError(w, "terlalu banyak file (maks "+strconv.Itoa(cfg.MaxFiles)+")", http.StatusBadRequest)
-		default:
-			WriteError(w, err.Error(), http.StatusBadRequest)
-		}
+		uploadErrorResponse(w, err, cfg)
 		return
 	}
 	if spec.want > 0 && len(files) != spec.want {

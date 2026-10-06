@@ -89,11 +89,11 @@ Satu template, banyak tool: `apps/web/app/tools/[slug]/page.tsx`, dengan konfigu
 | Tool (label di beranda) | Slug | Input | Opsi | Endpoint | Status backend |
 |---|---|---|---|---|---|
 | Merge PDF | `merge-pdf` | banyak PDF | urutan file | `POST /api/merge` | Selesai |
-| Split PDF | `split-pdf` | 1 PDF | per halaman / rentang | `POST /api/split` | Belum |
-| Compress PDF | `compress-pdf` | 1 PDF | level: light / medium / strong | `POST /api/compress` | Belum (Ghostscript) |
-| Watermark PDF | `watermark-pdf` | 1 PDF | teks, posisi, opasitas | `POST /api/watermark` | Belum |
-| Protect PDF | `protect-pdf` | 1 PDF | password | `POST /api/protect` | Belum |
-| JPEG to PDF | `jpeg-to-pdf` | banyak JPG/PNG | urutan, ukuran halaman | `POST /api/images-to-pdf` | Belum |
+| Split PDF | `split-pdf` | 1 PDF | per halaman / rentang | `POST /api/split` | Selesai |
+| Compress PDF | `compress-pdf` | 1 PDF | level: light / medium / strong | `POST /api/compress` | Selesai (Ghostscript) |
+| Watermark PDF | `watermark-pdf` | 1 PDF | teks, posisi, opasitas | `POST /api/watermark` | Selesai |
+| Protect PDF | `protect-pdf` | 1 PDF | password | `POST /api/protect` | Selesai |
+| JPEG to PDF | `jpeg-to-pdf` | banyak JPG/PNG | urutan, ukuran halaman | `POST /api/images-to-pdf` | Selesai |
 | DOCX to PDF | `docx-to-pdf` | 1 DOCX | - | `POST /api/office-to-pdf` | Belum (LibreOffice, async) |
 | Excel to PDF | `excel-to-pdf` | 1 XLSX | - | `POST /api/office-to-pdf` | Belum (LibreOffice, async) |
 | PPTX to PDF | `pptx-to-pdf` | 1 PPTX | - | `POST /api/office-to-pdf` | Belum (LibreOffice, async) |

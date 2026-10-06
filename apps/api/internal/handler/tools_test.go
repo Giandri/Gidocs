@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 
@@ -236,4 +237,30 @@ func TestImagesToPDFHandler(t *testing.T) {
 	assertCode(t, post(ImagesToPDFHandler, []upload{{name: "x.txt", content: "bukan gambar"}}, map[string]string{"size": "a4"}), http.StatusBadRequest)
 	assertCode(t, post(ImagesToPDFHandler, []upload{pngUp}, map[string]string{"size": "letter"}), http.StatusBadRequest)
 	assertCode(t, post(ImagesToPDFHandler, nil, map[string]string{"size": "a4"}), http.StatusBadRequest)
+}
+
+func ghostscriptAvailable() bool {
+	bin := os.Getenv("GS_BIN")
+	if bin == "" {
+		bin = "gswin64c"
+		if _, err := exec.LookPath(bin); err != nil {
+			bin = "gs"
+		}
+	}
+	_, err := exec.LookPath(bin)
+	return err == nil
+}
+
+func TestCompressHandler(t *testing.T) {
+	doc := fixture(t, "a.pdf")
+
+	// Level di luar whitelist ditolak bahkan sebelum Ghostscript dijalankan.
+	assertCode(t, post(CompressHandler, []upload{doc}, map[string]string{"level": "extreme"}), http.StatusBadRequest)
+	assertCode(t, post(CompressHandler, []upload{doc}, nil), http.StatusBadRequest)
+
+	if !ghostscriptAvailable() {
+		t.Log("Ghostscript tidak tersedia, tes sukses dilewati")
+		return
+	}
+	assertPDF(t, post(CompressHandler, []upload{doc}, map[string]string{"level": "medium"}))
 }

@@ -11,6 +11,8 @@ export interface Tool {
   maxFiles: number;
   endpoint: string;
   ready: boolean;
+  /** true = diproses lewat antrian jobs (async), bukan request sinkron. */
+  async?: boolean;
   badge?: string;
   options: OptionKind;
 }
@@ -33,8 +35,9 @@ export const tools: Tool[] = [
     multiple: false,
     minFiles: 1,
     maxFiles: 1,
-    endpoint: "/api/office-to-pdf",
-    ready: false,
+    endpoint: "/api/jobs",
+    ready: true,
+    async: true,
     badge: "most",
     options: "none",
   },
@@ -47,8 +50,9 @@ export const tools: Tool[] = [
     multiple: false,
     minFiles: 1,
     maxFiles: 1,
-    endpoint: "/api/office-to-pdf",
-    ready: false,
+    endpoint: "/api/jobs",
+    ready: true,
+    async: true,
     options: "none",
   },
   {
@@ -60,8 +64,9 @@ export const tools: Tool[] = [
     multiple: false,
     minFiles: 1,
     maxFiles: 1,
-    endpoint: "/api/office-to-pdf",
-    ready: false,
+    endpoint: "/api/jobs",
+    ready: true,
+    async: true,
     options: "none",
   },
   {
@@ -87,7 +92,7 @@ export const tools: Tool[] = [
     minFiles: 1,
     maxFiles: 1,
     endpoint: "/api/compress",
-    ready: false,
+    ready: true,
     options: "compress",
   },
   {

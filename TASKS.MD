@@ -54,23 +54,23 @@ Catatan: Rotate, hapus halaman, reorder, dan unlock **API saja** (tidak ada di d
 - [x] Gambar ke PDF: `POST /api/images-to-pdf`
 - [x] Validasi parameter dengan whitelist untuk semua opsi (angle, mode, rentang, posisi, opasitas, ukuran halaman, password; rentang juga dicek terhadap jumlah halaman karena pdfcpu bisa menulis PDF kosong)
 
-## Fase 4: Compress (CLI eksternal pertama)
+## Fase 4: Compress (CLI eksternal pertama) (SELESAI)
 
-- [ ] Wrapper Ghostscript via `os/exec` dengan `-dSAFER`, timeout, dan `exec.CommandContext`
-- [ ] Preset kompresi (whitelist): ringan, sedang, kuat
-- [ ] `POST /api/compress` dan tampilkan ukuran sebelum/sesudah di UI
-- [ ] Putuskan lisensi final (AGPL-3.0) dan catat di README
+- [x] Wrapper Ghostscript via `os/exec` dengan `-dSAFER`, timeout, dan `exec.CommandContext`
+- [x] Preset kompresi (whitelist): ringan, sedang, kuat (`light`=`/printer`, `medium`=`/ebook`, `strong`=`/screen`)
+- [x] `POST /api/compress` dan tampilkan ukuran sebelum/sesudah di UI
+- [x] Putuskan lisensi final (AGPL-3.0) dan catat di README
 
 ## Fase 5: Tool Berat (async)
 
-- [ ] Pasang Redis + asynq, pisahkan `cmd/worker`
-- [ ] Status job di Redis dengan TTL (tanpa database)
-- [ ] Endpoint: `POST /api/jobs`, `GET /api/jobs/{id}`, `GET /api/jobs/{id}/download`
+- [x] Pasang Redis + asynq, pisahkan `cmd/worker`
+- [x] Status job di Redis dengan TTL (tanpa database)
+- [x] Endpoint: `POST /api/jobs`, `GET /api/jobs/{id}`, `GET /api/jobs/{id}/download`
 - [ ] PDF ke gambar (Poppler)
 - [ ] OCR (OCRmyPDF + Tesseract bahasa `ind` dan `eng`)
-- [ ] Office ke PDF (LibreOffice headless)
-- [ ] Pembersih file kedaluwarsa terjadwal
-- [ ] Polling/SSE di frontend
+- [x] Office ke PDF (LibreOffice headless)
+- [x] Pembersih file kedaluwarsa terjadwal
+- [x] Polling/SSE di frontend
 
 ## Fase 6: Keamanan dan Hardening
 
@@ -165,10 +165,10 @@ Rujukan desain: `DESIGN.md`. Daftar tool di beranda sedikit berbeda dari rencana
 
 - [x] Merge PDF → `POST /api/merge` (sudah ada backend)
 - [x] Split PDF → `POST /api/split` (setelah backend Fase 3)
-- [ ] Compress PDF → `POST /api/compress` (setelah Fase 4)
+- [x] Compress PDF → `POST /api/compress` (setelah Fase 4)
 - [x] Watermark PDF → `POST /api/watermark`
 - [x] Protect PDF → `POST /api/protect`
 - [x] JPEG to PDF → `POST /api/images-to-pdf`
-- [ ] DOCX/Excel/PPTX to PDF → `POST /api/office-to-pdf` (async, polling/SSE menyusul)
+- [x] DOCX/Excel/PPTX to PDF → `POST /api/jobs` + polling (async, Redis + asynq)
 - [ ] Sign PDF → ikuti keputusan di `PRD.md`
 - [x] Sebelum tiap backend siap: halaman tetap bisa dibuka, tombol Run disabled dengan alasan jelas (bukan halaman rusak)

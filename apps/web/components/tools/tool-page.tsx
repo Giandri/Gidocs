@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { runTool, type RunResult } from "../../lib/api";
+import { runJob, runTool, type RunResult } from "../../lib/api";
 import { type OptionKind, type Tool } from "../../lib/tools";
 import { Dropzone } from "./dropzone";
 import { FileList } from "./file-list";
@@ -84,8 +84,15 @@ export function ToolPage({ tool }: { tool: Tool }) {
     setBusy(true);
     clearOutput();
     try {
-      const output = await runTool(tool.endpoint, files, omitFields(fields, ["confirm"]));
-      setResult(output);
+      const output = tool.async
+        ? await runJob(tool.slug, files)
+        : await runTool(tool.endpoint, files, omitFields(fields, ["confirm"]));
+      const first = files[0];
+      setResult(
+        tool.options === "compress" && first
+          ? { ...output, beforeBytes: first.size }
+          : output,
+      );
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Something went wrong.");
     } finally {

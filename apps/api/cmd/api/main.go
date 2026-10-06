@@ -32,6 +32,7 @@ func main() {
 	})
 
 	r.Post("/api/merge", apihandler.MergeHandler)
+	r.Post("/api/compress", apihandler.CompressHandler)
 	r.Post("/api/rotate", apihandler.RotateHandler)
 	r.Post("/api/split", apihandler.SplitHandler)
 	r.Post("/api/remove-pages", apihandler.RemovePagesHandler)
@@ -40,6 +41,10 @@ func main() {
 	r.Post("/api/unlock", apihandler.UnlockHandler)
 	r.Post("/api/watermark", apihandler.WatermarkHandler)
 	r.Post("/api/images-to-pdf", apihandler.ImagesToPDFHandler)
+
+	r.Post("/api/jobs", apihandler.EnqueueJob)
+	r.Get("/api/jobs/{id}", apihandler.JobStatus)
+	r.Get("/api/jobs/{id}/download", apihandler.JobDownload)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
@@ -70,7 +75,7 @@ func corsMiddleware(allowedOrigins string) func(http.Handler) http.Handler {
 			origin := r.Header.Get("Origin")
 			if allowedOrigins == "" || origin == "" || matchesOrigin(origin, allowedOrigins) {
 				w.Header().Set("Access-Control-Allow-Origin", origin)
-				w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 				w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 				w.Header().Set("Access-Control-Allow-Credentials", "true")
 			}

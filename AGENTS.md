@@ -11,10 +11,12 @@ Gidocs/
 ├── apps/
 │   ├── web/        # Next.js + TypeScript + Tailwind (frontend)
 │   └── api/        # Go + chi + pdfcpu (backend)
-│       ├── cmd/api/main.go
+│       ├── cmd/api/main.go      # HTTP server
+│       ├── cmd/worker/main.go   # worker antrian asynq (Office ke PDF)
 │       └── internal/
-│           ├── http/     # handler, helper upload  (rencana: ganti nama ke handler)
+│           ├── handler/  # handler HTTP + helper upload
 │           ├── pdf/      # logika PDF (pdfcpu / CLI)
+│           ├── jobs/     # antrian async: asynq + Redis, konversi LibreOffice
 │           └── config/
 ├── packages/       # paket bersama (ui, config)
 ├── turbo.json
@@ -30,11 +32,13 @@ Gidocs/
 ```powershell
 # dari root monorepo
 turbo dev                      # jalankan web + api
+turbo run worker --filter api  # jalankan worker antrian (butuh Redis jalan)
 turbo build
 turbo test
 
 # dari apps/api
 go run ./cmd/api
+go run ./cmd/worker            # worker async (Redis di localhost:6379, LibreOffice untuk tool Office)
 go build ./...
 go vet ./...
 go test ./...
@@ -126,6 +130,7 @@ Semua file dari user dianggap berbahaya.
 | Gejala | Penyebab | Solusi |
 |---|---|---|
 | `address already in use` di 8080 | Proses Go lama menggantung | `netstat -ano \| findstr :8080` lalu `taskkill /PID <PID> /F` |
+| Job Office selalu `queued` | Worker (`cmd/worker`) belum jalan | Jalankan `turbo run worker --filter api` (butuh Redis) |
 | `not enough arguments in call to api.X` | Signature pdfcpu berubah (butuh `ctx`) | `go doc` untuk melihat signature |
 | `apihttp undefined` | Import `internal/http` tanpa alias | Tambahkan alias `apihttp` |
 | `go: cannot find main module` | Menjalankan `go` di luar `apps/api` | `cd apps/api` |
