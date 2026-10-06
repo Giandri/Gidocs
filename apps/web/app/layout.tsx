@@ -13,9 +13,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Gidoc — Open-source tools for documents and PDFs",
-  description:
-    "Explore open-source tools for working with PDF documents and files.",
+  title: "Gidocs",
+  description: "Open-source tools for documents and PDFs",
 };
 
 export default function RootLayout({
@@ -27,9 +26,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
-        {process.env.NODE_ENV === "development" && (
-          <Agentation appName="Gidoc" />
-        )}
+        {process.env.NODE_ENV === "development" && <Agentation appName="Gidocs" />}
       </body>
     </html>
   );
