@@ -1,3 +1,5 @@
+import process from "node:process"
+
 const API_URL = process.env.API_URL || "http://localhost:8080"
 
 /** @type {import('next').NextConfig} */

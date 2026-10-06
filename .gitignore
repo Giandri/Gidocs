@@ -27,6 +27,12 @@ out/
 build
 dist
 
+# Go
+apps/api/tmp/
+apps/api/bin/
+*.exe
+coverage.out
+
 
 # Debug
 npm-debug.log*
