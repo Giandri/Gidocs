@@ -8,7 +8,6 @@ node_modules
 # Local env files
 .env
 .env.*
-!.env.example
 *.local
 
 # Testing
@@ -32,6 +31,9 @@ apps/api/tmp/
 apps/api/bin/
 *.exe
 coverage.out
+
+# Redis
+dump.rdb
 
 
 # Debug
@@ -57,6 +59,11 @@ service-account*.json
 *.tsbuildinfo
 next-env.d.ts
 .turbo/**/*.log
+
+# Document MD
+TASKS.MD
+PRD.MD
+AGENTS.MD
 
 # Editors
 .vscode/*

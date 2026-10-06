@@ -25,16 +25,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# env files (can opt-in for committing if needed)
+# env files 
 .env*
 
 # vercel
 .vercel
 
-# Document MD
-TASKS.MD
-PRD.MD
-AGENTS.MD
+
 
 # typescript
 *.tsbuildinfo
