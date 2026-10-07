@@ -51,6 +51,16 @@ func FindSOFFICE() (string, error) {
 	return "", errors.New("LibreOffice tidak ditemukan")
 }
 
+// profileDir adalah profil LibreOffice bersama untuk semua job.
+// Profil segar butuh inisialisasi ~13 detik tiap konversi; memakai ulang
+// profil yang sama hanya ~5 detik. Karena worker memproses job secara serial
+// (Concurrency 1), tidak pernah ada dua LibreOffice yang berebut profil.
+// Profil hanya menyimpan path generik (input.ext + id acak), bukan nama
+// file asli user.
+func profileDir() string {
+	return filepath.Join(os.TempDir(), "gidocs-lo-profile")
+}
+
 // ConvertOffice menjalankan LibreOffice headless untuk satu payload job.
 // Hasil akhirnya adalah ResultPath(JobID) berupa PDF.
 func ConvertOffice(ctx context.Context, p Payload) error {
@@ -61,8 +71,7 @@ func ConvertOffice(ctx context.Context, p Payload) error {
 	runCtx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 	defer cancel()
 
-	// Profil unik per job agar beberapa konversi tidak saling mengunci.
-	profileURL := "file:///" + filepath.ToSlash(filepath.Join(p.OutDir, "lo-profile"))
+	profileURL := "file:///" + filepath.ToSlash(profileDir())
 
 	cmd := exec.CommandContext(runCtx, bin,
 		"--headless", "--norestore", "--nolockcheck",

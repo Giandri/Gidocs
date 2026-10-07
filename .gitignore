@@ -64,8 +64,10 @@ next-env.d.ts
 TASKS.MD
 PRD.MD
 AGENTS.MD
+DESIGN.MD
 
 # Editors
 .vscode/*
 !.vscode/settings.json
 .idea
+

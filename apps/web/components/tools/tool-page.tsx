@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { runJob, runTool, type RunResult } from "../../lib/api";
+import { outputFilename, runJob, runTool, type RunResult } from "../../lib/api";
 import { type OptionKind, type Tool } from "../../lib/tools";
 import { Dropzone } from "./dropzone";
 import { FileList } from "./file-list";
@@ -14,7 +14,7 @@ const defaultFields: Record<string, Record<string, string>> = {
   none: {},
   split: { mode: "every", ranges: "" },
   compress: { level: "medium" },
-  watermark: { text: "", position: "center", opacity: "50" },
+  watermark: { kind: "text", text: "", position: "center", opacity: "50", size: "50" },
   protect: { password: "", confirm: "" },
   "page-size": { size: "a4" },
 };
@@ -22,13 +22,19 @@ const defaultFields: Record<string, Record<string, string>> = {
 export function ToolPage({ tool }: { tool: Tool }) {
   const [files, setFiles] = useState<File[]>([]);
   const [fields, setFields] = useState<Record<string, string>>(defaultFields[tool.options] ?? {});
+  const [mark, setMark] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<RunResult | null>(null);
+  const [output, setOutput] = useState("");
 
   const minFiles = tool.minFiles;
-  const problem = validateFields(tool.options, fields);
+  const problem = validateFields(tool.options, fields, mark);
   const ready = tool.ready && files.length >= minFiles && !problem && !busy;
+
+  const ext = tool.outputExt ?? ".pdf";
+  const defaultBase = files[0] ? files[0].name.replace(/\.[^.]+$/, "") : "result";
+  const downloadName = outputFilename(output.trim() || defaultBase, ext);
 
   const reason = !tool.ready
     ? "This tool is not ready yet."
@@ -84,9 +90,11 @@ export function ToolPage({ tool }: { tool: Tool }) {
     setBusy(true);
     clearOutput();
     try {
+      const extra =
+        tool.slug === "watermark-pdf" && fields.kind === "image" && mark ? { mark } : undefined;
       const output = tool.async
         ? await runJob(tool.slug, files)
-        : await runTool(tool.endpoint, files, omitFields(fields, ["confirm"]));
+        : await runTool(tool.endpoint, files, omitFields(fields, ["confirm"]), extra);
       const first = files[0];
       setResult(
         tool.options === "compress" && first
@@ -104,6 +112,8 @@ export function ToolPage({ tool }: { tool: Tool }) {
     clearOutput();
     setFiles([]);
     setFields(defaultFields[tool.options] ?? {});
+    setMark(null);
+    setOutput("");
   };
 
   return (
@@ -130,7 +140,22 @@ export function ToolPage({ tool }: { tool: Tool }) {
       {tool.options !== "none" ? (
         <section className="border-b border-line px-5 py-4 sm:px-[50px]">
           <h2 className="mb-3 text-[11px] font-bold text-[#e4e0e0]">Options</h2>
-          <ToolOptions fields={fields} kind={tool.options} onChange={changeField} />
+          <ToolOptions fields={fields} kind={tool.options} mark={mark} onChange={changeField} onMarkFile={setMark} />
+        </section>
+      ) : null}
+
+      {files.length > 0 ? (
+        <section className="border-b border-line px-5 py-4 sm:px-[50px]">
+          <label className="flex max-w-sm flex-col gap-1">
+            <span className="text-[10px] text-muted">Output file name</span>
+            <input
+              className="border border-line bg-black px-2 py-1.5 text-[11px] text-ink focus:border-white focus:outline-none disabled:opacity-40"
+              disabled={busy}
+              onChange={(event) => setOutput(event.target.value)}
+              placeholder={`${defaultBase}${ext}`}
+              value={output}
+            />
+          </label>
         </section>
       ) : null}
 
@@ -140,19 +165,29 @@ export function ToolPage({ tool }: { tool: Tool }) {
 
       {error || result ? (
         <section className="border-b border-line px-5 py-4 sm:px-[50px]">
-          <ResultPanel error={error} onReset={reset} result={result} />
+          <ResultPanel error={error} name={downloadName} onReset={reset} result={result} />
         </section>
       ) : null}
     </>
   );
 }
 
-function validateFields(kind: OptionKind, fields: Record<string, string>): string | undefined {
+function validateFields(
+  kind: OptionKind,
+  fields: Record<string, string>,
+  mark?: File | null,
+): string | undefined {
   if (kind === "protect") {
     if (!fields.password) return "Enter a password.";
     if (fields.password !== fields.confirm) return "Passwords do not match.";
   }
-  if (kind === "watermark" && !fields.text?.trim()) return "Enter watermark text.";
+  if (kind === "watermark") {
+    if (fields.kind === "image") {
+      if (!mark) return "Add a watermark image.";
+    } else if (!fields.text?.trim()) {
+      return "Enter watermark text.";
+    }
+  }
   if (kind === "split" && fields.mode === "ranges" && !fields.ranges?.trim()) return "Enter page ranges.";
   return undefined;
 }

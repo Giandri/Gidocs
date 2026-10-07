@@ -4,11 +4,13 @@ import { downloadBlob, type RunResult } from "../../lib/api";
 
 interface ResultPanelProps {
   error: string | null;
+  /** Nama file unduhan hasil user (bawaan dari backend bila tidak diisi). */
+  name?: string;
   onReset: () => void;
   result: RunResult | null;
 }
 
-export function ResultPanel({ error, onReset, result }: ResultPanelProps) {
+export function ResultPanel({ error, name, onReset, result }: ResultPanelProps) {
   if (error) {
     return (
       <p className="flex gap-2 text-[11px] leading-[1.8] text-error" role="alert">
@@ -29,7 +31,7 @@ export function ResultPanel({ error, onReset, result }: ResultPanelProps) {
           [ok]
         </span>
         <span>
-          {result.filename} ({formatSize(result.blob.size)})
+          {name || result.filename} ({formatSize(result.blob.size)})
         </span>
       </p>
       {result.beforeBytes !== undefined ? (
@@ -46,7 +48,7 @@ export function ResultPanel({ error, onReset, result }: ResultPanelProps) {
       <div className="mt-3 flex items-center gap-4">
         <button
           className="min-h-[36px] border border-accent px-4 text-[11px] text-accent transition-colors hover:bg-white hover:text-black focus-visible:bg-white focus-visible:text-black focus-visible:outline-none"
-          onClick={() => downloadBlob(result)}
+          onClick={() => downloadBlob(result, name)}
           type="button"
         >
           Download

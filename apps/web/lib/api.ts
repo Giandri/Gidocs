@@ -5,10 +5,16 @@ export interface RunResult {
   beforeBytes?: number;
 }
 
-export async function runTool(endpoint: string, files: File[], fields: Record<string, string>): Promise<RunResult> {
+export async function runTool(
+  endpoint: string,
+  files: File[],
+  fields: Record<string, string>,
+  extra?: { mark?: File },
+): Promise<RunResult> {
   const form = new FormData();
   for (const file of files) form.append("files", file);
   for (const [key, value] of Object.entries(fields)) form.append(key, value);
+  if (extra?.mark) form.append("mark", extra.mark);
 
   const response = await fetch(endpoint, { method: "POST", body: form });
   if (!response.ok) throw new Error(await failMessage(response));
@@ -55,13 +61,20 @@ async function failMessage(response: Response): Promise<string> {
   return raw && !raw.startsWith("<") ? raw : `Request failed (${response.status})`;
 }
 
-export function downloadBlob({ blob, filename }: RunResult): void {
-  const url = URL.createObjectURL(blob);
+export function downloadBlob(result: RunResult, name?: string): void {
+  const url = URL.createObjectURL(result.blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = filename;
+  link.download = name || result.filename;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+/** Susun nama file unduhan: buang karakter terlarang, paksa ekstensi yang benar. */
+export function outputFilename(base: string, ext: string): string {
+  const clean = base.replace(/[\\/:*?"<>|]/g, "").trim() || "result";
+  const stem = clean.replace(/\.[a-zA-Z0-9]{1,5}$/, "");
+  return stem + ext;
 }
 
 function filenameFromDisposition(header: string | null): string | null {

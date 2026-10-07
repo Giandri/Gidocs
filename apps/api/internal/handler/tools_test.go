@@ -40,6 +40,30 @@ func post(h http.HandlerFunc, files []upload, fields map[string]string) *httptes
 	return rec
 }
 
+// postMark seperti post, tapi menambahkan satu file tambahan di field "mark".
+func postMark(h http.HandlerFunc, files []upload, mark upload, fields map[string]string) *httptest.ResponseRecorder {
+	body := &bytes.Buffer{}
+	mw := multipart.NewWriter(body)
+	for _, f := range files {
+		part, _ := mw.CreateFormFile("files", f.name)
+		part.Write([]byte(f.content))
+	}
+	if mark.name != "" {
+		part, _ := mw.CreateFormFile("mark", mark.name)
+		part.Write([]byte(mark.content))
+	}
+	for k, v := range fields {
+		mw.WriteField(k, v)
+	}
+	mw.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/api/test", body)
+	req.Header.Set("Content-Type", mw.FormDataContentType())
+	rec := httptest.NewRecorder()
+	h(rec, req)
+	return rec
+}
+
 func fixture(t *testing.T, name string) upload {
 	t.Helper()
 	b, err := os.ReadFile(filepath.Join("..", "..", "testdata", name))
@@ -216,9 +240,52 @@ func TestWatermarkHandler(t *testing.T) {
 	assertCode(t, post(WatermarkHandler, []upload{a}, map[string]string{
 		"text": "DRAFT", "position": "atas", "opacity": "50",
 	}), http.StatusBadRequest)
-	assertCode(t, post(WatermarkHandler, []upload{a}, map[string]string{
+assertCode(t, post(WatermarkHandler, []upload{a}, map[string]string{
 		"text": "DRAFT", "position": "center", "opacity": "5",
 	}), http.StatusBadRequest)
+}
+
+func TestWatermarkImageHandler(t *testing.T) {
+	a := fixture(t, "a.pdf")
+	pngUp := imageUpload(t, "png")
+
+	rec := postMark(WatermarkHandler, []upload{a}, pngUp, map[string]string{
+		"position": "center", "opacity": "50",
+	})
+	assertPDF(t, rec)
+
+	// gambar bukan PNG/JPEG
+	assertCode(t, postMark(WatermarkHandler, []upload{a}, upload{name: "x.txt", content: "bukan gambar"}, map[string]string{
+		"position": "center", "opacity": "50",
+	}), http.StatusBadRequest)
+
+	// diagonal khusus teks, tidak valid untuk gambar
+	assertCode(t, postMark(WatermarkHandler, []upload{a}, pngUp, map[string]string{
+		"position": "diagonal", "opacity": "50",
+	}), http.StatusBadRequest)
+
+	// posisi tidak dikenal
+	assertCode(t, postMark(WatermarkHandler, []upload{a}, pngUp, map[string]string{
+		"position": "atas", "opacity": "50",
+	}), http.StatusBadRequest)
+
+	// opasitas di luar rentang
+	assertCode(t, postMark(WatermarkHandler, []upload{a}, pngUp, map[string]string{
+		"position": "center", "opacity": "5",
+	}), http.StatusBadRequest)
+
+	// ukuran di luar rentang
+	assertCode(t, postMark(WatermarkHandler, []upload{a}, pngUp, map[string]string{
+		"position": "center", "opacity": "50", "size": "5",
+	}), http.StatusBadRequest)
+	assertCode(t, postMark(WatermarkHandler, []upload{a}, pngUp, map[string]string{
+		"position": "center", "opacity": "50", "size": "105",
+	}), http.StatusBadRequest)
+
+	// ukuran berbeda wajar
+	assertPDF(t, postMark(WatermarkHandler, []upload{a}, pngUp, map[string]string{
+		"position": "center", "opacity": "50", "size": "80",
+	}))
 }
 
 func TestImagesToPDFHandler(t *testing.T) {

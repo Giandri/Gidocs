@@ -9,7 +9,7 @@ import { Brand } from "../brand";
 export function ToolShell({ tool, children }: { tool: Tool; children: ReactNode }) {
   return (
     <main className="flex min-h-screen w-full flex-col items-center bg-black font-mono text-[#d5d2d2]">
-      <div className="w-full max-w-[684px] border-x border-line">
+      <div className="flex min-h-screen w-full max-w-[684px] flex-col border-x border-line">
         <SiteHeader brand={<Brand />} links={navLinks} />
         <section className="border-b border-line px-5 py-3 sm:px-[50px]">
           <a className="text-[10px] text-nav transition-colors hover:text-white sm:text-[11px]" href="/">
@@ -31,7 +31,9 @@ export function ToolShell({ tool, children }: { tool: Tool; children: ReactNode 
             <span>Your files are processed temporarily and deleted right after the job finishes.</span>
           </p>
         </section>
-        <SiteFooter />
+        <div className="mt-auto">
+          <SiteFooter />
+        </div>
       </div>
     </main>
   );

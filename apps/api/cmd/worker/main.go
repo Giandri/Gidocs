@@ -21,7 +21,9 @@ func main() {
 	mux := asynq.NewServeMux()
 	mux.HandleFunc(jobs.TopicOffice, handleOffice)
 
-	srv := asynq.NewServer(jobs.AsynqOpt(), asynq.Config{Concurrency: 2})
+	// Serial (1 job pada satu waktu): seluruh job berbagi satu profil
+	// LibreOffice, jadi dua konversi tidak boleh berjalan bersamaan.
+	srv := asynq.NewServer(jobs.AsynqOpt(), asynq.Config{Concurrency: 1})
 	go func() {
 		stop := make(chan os.Signal, 1)
 		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)

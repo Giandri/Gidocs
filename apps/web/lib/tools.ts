@@ -15,6 +15,8 @@ export interface Tool {
   async?: boolean;
   badge?: string;
   options: OptionKind;
+  /** Ekstensi file unduhan (default ".pdf"). */
+  outputExt?: string;
 }
 
 export const repository = "https://github.com/Giandri/Gidocs";
@@ -107,6 +109,7 @@ export const tools: Tool[] = [
     endpoint: "/api/split",
     ready: true,
     options: "split",
+    outputExt: ".zip",
   },
   {
     slug: "merge-pdf",

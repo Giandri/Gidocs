@@ -30,13 +30,15 @@ func TestParamWhitelist(t *testing.T) {
 		{"unlock password panjang", func() error {
 			return Unlock(ctx, "x.pdf", "y.pdf", strings.Repeat("a", 129))
 		}},
-		{"watermark teks kosong", func() error { return Watermark(ctx, "x.pdf", "y.pdf", " ", "center", "50") }},
-		{"watermark posisi asing", func() error { return Watermark(ctx, "x.pdf", "y.pdf", "hi", "middle", "50") }},
-		{"watermark opacity rendah", func() error { return Watermark(ctx, "x.pdf", "y.pdf", "hi", "center", "5") }},
-		{"watermark opacity tinggi", func() error { return Watermark(ctx, "x.pdf", "y.pdf", "hi", "center", "500") }},
+		{"watermark teks kosong", func() error { return Watermark(ctx, "x.pdf", "y.pdf", " ", "center", "50", "") }},
+		{"watermark posisi asing", func() error { return Watermark(ctx, "x.pdf", "y.pdf", "hi", "middle", "50", "") }},
+		{"watermark opacity rendah", func() error { return Watermark(ctx, "x.pdf", "y.pdf", "hi", "center", "5", "") }},
+		{"watermark opacity tinggi", func() error { return Watermark(ctx, "x.pdf", "y.pdf", "hi", "center", "500", "") }},
 		{"watermark opacity teks", func() error {
-			return Watermark(ctx, "x.pdf", "y.pdf", "hi", "center", "lima")
+			return Watermark(ctx, "x.pdf", "y.pdf", "hi", "center", "lima", "")
 		}},
+		{"watermark ukuran rendah", func() error { return Watermark(ctx, "x.pdf", "y.pdf", "hi", "center", "50", "5") }},
+		{"watermark ukuran teks", func() error { return Watermark(ctx, "x.pdf", "y.pdf", "hi", "center", "50", "besar") }},
 		{"images ukuran asing", func() error { return ImagesToPDF(ctx, []string{"a.png"}, "y.pdf", "letter") }},
 		{"images kosong", func() error { return ImagesToPDF(ctx, nil, "y.pdf", "a4") }},
 	}
