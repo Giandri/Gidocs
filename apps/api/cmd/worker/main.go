@@ -1,5 +1,6 @@
-// Worker menjalankan antrian tugas asynq: konversi Office ke PDF via
-// LibreOffice headless, plus pembersih folder job kedaluwarsa.
+// Worker menjalankan antrian tugas asynq: konversi Office ke PDF (LibreOffice),
+// PDF ke gambar (Poppler), OCR (OCRmyPDF), plus pembersih folder job
+// kedaluwarsa.
 package main
 
 import (
@@ -19,7 +20,7 @@ func main() {
 	go sweeper()
 
 	mux := asynq.NewServeMux()
-	mux.HandleFunc(jobs.TopicOffice, handleOffice)
+	mux.HandleFunc(jobs.TopicOffice, handleJob)
 
 	// Serial (1 job pada satu waktu): seluruh job berbagi satu profil
 	// LibreOffice, jadi dua konversi tidak boleh berjalan bersamaan.
@@ -38,9 +39,10 @@ func main() {
 	}
 }
 
-// handleOffice memproses tugas konversi Office. Selalu mengembalikan nil
-// setelah meta diupdate agar asynq tidak mengulang job yang sudah diproses.
-func handleOffice(ctx context.Context, t *asynq.Task) error {
+// handleJob memproses tugas sesuai tool (Office, pdf-to-image, ocr-pdf).
+// Selalu mengembalikan nil setelah meta diupdate agar asynq tidak mengulang
+// job yang sudah diproses.
+func handleJob(ctx context.Context, t *asynq.Task) error {
 	var p jobs.Payload
 	if err := json.Unmarshal(t.Payload(), &p); err != nil {
 		slog.Error("payload job tidak valid", "err", err)
@@ -53,7 +55,7 @@ func handleOffice(ctx context.Context, t *asynq.Task) error {
 
 	jobs.SetStatus(ctx, p.JobID, p.Tool, "processing", "")
 
-	if err := jobs.ConvertOffice(ctx, p); err != nil {
+	if err := jobs.Run(ctx, p); err != nil {
 		// pesan error aman ditampilkan ke user (berbahasa Indonesia, generik)
 		jobs.SetStatus(ctx, p.JobID, p.Tool, "error", err.Error())
 		return nil

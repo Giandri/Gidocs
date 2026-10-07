@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -90,5 +91,66 @@ func TestJobStatusInvalidID(t *testing.T) {
 	assertCode(t, getJob(t, "/api/jobs/bukan-id-valid"), http.StatusBadRequest)
 	if redisAvailable() {
 		assertCode(t, getJob(t, "/api/jobs/00000000000000000000000000000000"), http.StatusNotFound)
+	}
+}
+
+// TestEnqueueJobPDFTools menguji tool job berbasis PDF (pdf-to-image, ocr-pdf).
+func TestEnqueueJobPDFTools(t *testing.T) {
+	doc := upload{name: "a.docx", content: string([]byte{'P', 'K', 0x03, 0x04, 0x14, 0x00, 0x06, 0x00})}
+
+	// tool baru menolak file bukan PDF
+	for _, slug := range []string{"pdf-to-image", "ocr-pdf"} {
+		assertCode(t, post(EnqueueJob, []upload{doc}, map[string]string{"tool": slug}), http.StatusBadRequest)
+	}
+	if !redisAvailable() {
+		t.Skip("Redis tidak tersedia, tes dilewati")
+	}
+	for _, slug := range []string{"pdf-to-image", "ocr-pdf"} {
+		rec := post(EnqueueJob, []upload{fixture(t, "a.pdf")}, map[string]string{"tool": slug})
+		if rec.Code != http.StatusAccepted {
+			t.Fatalf("%s: expected 202, got %d: %s", slug, rec.Code, rec.Body.String())
+		}
+		var resp struct {
+			ID string `json:"id"`
+		}
+		if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
+			t.Fatal(err)
+		}
+		defer os.RemoveAll(jobs.JobDir(resp.ID))
+		meta, err := jobs.GetMeta(t.Context(), resp.ID)
+		if err != nil || meta.Tool != slug || meta.Status != "queued" {
+			t.Fatalf("%s: meta aneh: %+v, err=%v", slug, meta, err)
+		}
+	}
+}
+
+// TestJobDownloadZipResult menguji unduhan hasil berbentuk ZIP (pdf-to-image).
+func TestJobDownloadZipResult(t *testing.T) {
+	if !redisAvailable() {
+		t.Skip("Redis tidak tersedia, tes dilewati")
+	}
+	id := jobs.NewID()
+	dir := jobs.JobDir(id)
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+	zipContent := []byte{'P', 'K', 0x03, 0x04, 0x14, 0x00, 0x06, 0x00}
+	if err := os.WriteFile(jobs.ZipResultPath(id), zipContent, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := jobs.SetStatus(t.Context(), id, "pdf-to-image", "done", ""); err != nil {
+		t.Fatal(err)
+	}
+
+	rec := getJob(t, "/api/jobs/"+id+"/download")
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rec.Code, rec.Body.String())
+	}
+	if ct := rec.Header().Get("Content-Type"); ct != "application/zip" {
+		t.Errorf("Content-Type = %q, ingin application/zip", ct)
+	}
+	if cd := rec.Header().Get("Content-Disposition"); !strings.Contains(cd, "images.zip") {
+		t.Errorf("Content-Disposition = %q, ingin berisi images.zip", cd)
 	}
 }

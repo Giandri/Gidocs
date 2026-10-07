@@ -89,6 +89,12 @@ func ResultPath(id string) string {
 	return filepath.Join(JobDir(id), "result.pdf")
 }
 
+// ZipResultPath adalah lokasi hasil berbentuk ZIP setelah job selesai
+// (mis. pdf-to-image).
+func ZipResultPath(id string) string {
+	return filepath.Join(JobDir(id), "result.zip")
+}
+
 // Enqueue menyimpan meta awal lalu memasukkan tugas ke antrian Redis.
 // Folder job harus sudah dibuat dan berisi file input.
 func Enqueue(ctx context.Context, p Payload) error {

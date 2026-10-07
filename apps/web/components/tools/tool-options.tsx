@@ -1,6 +1,8 @@
 "use client";
 
 import WakeSlider from "../WakeSlider";
+import Checkbox from "../checkbox";
+import { SignOptions } from "./sign-options";
 import { type OptionKind } from "../../lib/tools";
 
 interface ToolOptionsProps {
@@ -8,19 +10,33 @@ interface ToolOptionsProps {
   fields: Record<string, string>;
   /** Gambar watermark (mode Image di tool watermark). */
   mark?: File | null;
+  /** PDF sumber untuk pratinjau Sign PDF. */
+  source?: File | null;
   onMarkFile?: (file: File | null) => void;
   onChange: (name: string, value: string) => void;
 }
 
 const inputClass = "bg-black border border-line px-2 py-1.5 text-[11px] text-ink focus:border-white focus:outline-none disabled:opacity-40";
 const labelClass = "text-[10px] text-muted";
+const optionClass = "flex cursor-pointer items-center gap-2 text-[11px] text-ink";
 
-export function ToolOptions({ kind, fields, mark, onMarkFile, onChange }: ToolOptionsProps) {
+export function ToolOptions({ kind, fields, mark, source, onMarkFile, onChange }: ToolOptionsProps) {
+  if (kind === "sign") {
+    return (
+      <SignOptions
+        fields={fields}
+        onChange={onChange}
+        onSignature={(file) => onMarkFile?.(file)}
+        source={source ?? null}
+      />
+    );
+  }
+
   if (kind === "split") {
     return (
       <div className="space-y-2">
-        <Radio checked={fields.mode !== "ranges"} label="Every page" name="mode" onChange={() => onChange("mode", "every")} />
-        <Radio checked={fields.mode === "ranges"} label="Page ranges" name="mode" onChange={() => onChange("mode", "ranges")} />
+        <Checkbox checked={fields.mode !== "ranges"} className={optionClass} label="Every page" onCheckedChange={() => onChange("mode", "every")} />
+        <Checkbox checked={fields.mode === "ranges"} className={optionClass} label="Page ranges" onCheckedChange={() => onChange("mode", "ranges")} />
         {fields.mode === "ranges" ?
           <label className="flex flex-col gap-1">
             <span className={labelClass}>Ranges (for example 1-3,5,8-)</span>
@@ -35,7 +51,7 @@ export function ToolOptions({ kind, fields, mark, onMarkFile, onChange }: ToolOp
     return (
       <div className="space-y-2">
         {(["light", "medium", "strong"] as const).map((level) => (
-          <Radio checked={fields.level === level} key={level} label={level.charAt(0).toUpperCase() + level.slice(1)} name="level" onChange={() => onChange("level", level)} />
+          <Checkbox checked={fields.level === level} className={optionClass} key={level} label={level.charAt(0).toUpperCase() + level.slice(1)} onCheckedChange={() => onChange("level", level)} />
         ))}
       </div>
     );
@@ -44,8 +60,8 @@ export function ToolOptions({ kind, fields, mark, onMarkFile, onChange }: ToolOp
   if (kind === "watermark") {
     return (
       <div className="space-y-3">
-        <Radio checked={fields.kind !== "image"} label="Text" name="kind" onChange={() => onChange("kind", "text")} />
-        <Radio checked={fields.kind === "image"} label="Image" name="kind" onChange={() => onChange("kind", "image")} />
+        <Checkbox checked={fields.kind !== "image"} className={optionClass} label="Text" onCheckedChange={() => onChange("kind", "text")} />
+        <Checkbox checked={fields.kind === "image"} className={optionClass} label="Image" onCheckedChange={() => onChange("kind", "image")} />
         {fields.kind === "image" ?
           <label className="flex flex-col gap-1">
             <span className={labelClass}>Watermark image (PNG or JPG)</span>
@@ -148,20 +164,11 @@ export function ToolOptions({ kind, fields, mark, onMarkFile, onChange }: ToolOp
   if (kind === "page-size") {
     return (
       <div className="space-y-2">
-        <Radio checked={fields.size !== "fit"} label="A4" name="size" onChange={() => onChange("size", "a4")} />
-        <Radio checked={fields.size === "fit"} label="Fit image" name="size" onChange={() => onChange("size", "fit")} />
+        <Checkbox checked={fields.size !== "fit"} className={optionClass} label="A4" onCheckedChange={() => onChange("size", "a4")} />
+        <Checkbox checked={fields.size === "fit"} className={optionClass} label="Fit image" onCheckedChange={() => onChange("size", "fit")} />
       </div>
     );
   }
 
   return null;
-}
-
-function Radio({ checked, label, name, onChange }: { checked: boolean; label: string; name: string; onChange: () => void }) {
-  return (
-    <label className="flex cursor-pointer items-center gap-2 text-[11px] text-ink">
-      <input checked={checked} className="accent-[#f3ab00]" name={name} onChange={onChange} type="radio" />
-      {label}
-    </label>
-  );
 }

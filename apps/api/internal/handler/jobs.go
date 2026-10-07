@@ -13,6 +13,21 @@ import (
 
 var zipMagic = []byte{'P', 'K', 0x03, 0x04}
 
+// jobUploadKinds menentukan magic bytes, ekstensi, dan label per tool job
+// berdasarkan whitelist. Nama file user tidak pernah dipakai.
+func jobUploadKinds(slug string) (kinds []uploadedKind, label string, ok bool) {
+	if ext, found := jobs.OfficeExt(slug); found {
+		// Magic ZIP: docx/xlsx/pptx sama.
+		return []uploadedKind{{magic: zipMagic, ext: ext}},
+			strings.ToUpper(strings.TrimPrefix(ext, ".")), true
+	}
+	switch slug {
+	case "pdf-to-image", "ocr-pdf":
+		return []uploadedKind{pdfKind}, "PDF", true
+	}
+	return nil, "", false
+}
+
 // writeJSON menulis respons JSON sederhana.
 func writeJSON(w http.ResponseWriter, code int, v any) {
 	w.Header().Set("Content-Type", "application/json")
@@ -35,7 +50,7 @@ func EnqueueJob(w http.ResponseWriter, r *http.Request) {
 	}
 
 	slug := r.FormValue("tool")
-	ext, ok := jobs.OfficeExt(slug)
+	kinds, label, ok := jobUploadKinds(slug)
 	if !ok {
 		WriteError(w, "tool tidak dikenal", http.StatusBadRequest)
 		return
@@ -48,10 +63,6 @@ func EnqueueJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Magic ZIP (docx/xlsx/pptx sama); ekstensi diambil dari whitelist tool,
-	// bukan dari nama file user.
-	kinds := []uploadedKind{{magic: zipMagic, ext: ext}}
-	label := strings.ToUpper(strings.TrimPrefix(ext, "."))
 	input, err := saveUpload(files[0], dir, "input", -1, kinds, label)
 	if err != nil {
 		os.RemoveAll(dir)
@@ -118,7 +129,11 @@ func JobDownload(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, "job belum selesai", http.StatusConflict)
 		return
 	}
-	if err := WriteFileResponse(w, jobs.ResultPath(id), "converted.pdf", "application/pdf"); err != nil {
+	path, filename, contentType := jobs.ResultPath(id), "converted.pdf", "application/pdf"
+	if meta.Tool == "pdf-to-image" {
+		path, filename, contentType = jobs.ZipResultPath(id), "images.zip", "application/zip"
+	}
+	if err := WriteFileResponse(w, path, filename, contentType); err != nil {
 		WriteError(w, "hasil sudah tidak tersedia", http.StatusNotFound)
 	}
 }

@@ -23,7 +23,7 @@ export function RunButton({ disabled, loading, reason, onClick }: RunButtonProps
           <span className="pointer-events-none inline-flex justify-center">
             <LatticeLoader
               status="working"
-              label="Thinking"
+              label="Processing"
               doneLabel="Done in"
               errorLabel="Failed after"
               pattern="orbit"
@@ -31,7 +31,7 @@ export function RunButton({ disabled, loading, reason, onClick }: RunButtonProps
               shape="round"
               doneColor="#22c55e"
               errorColor="#ef4444"
-              cellSize={6}
+              cellSize={3}
               gap={2}
               fontSize={14}
               step={90}

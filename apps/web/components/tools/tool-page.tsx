@@ -17,6 +17,7 @@ const defaultFields: Record<string, Record<string, string>> = {
   watermark: { kind: "text", text: "", position: "center", opacity: "50", size: "50" },
   protect: { password: "", confirm: "" },
   "page-size": { size: "a4" },
+  sign: { page: "1", x: "", y: "", width: "150" },
 };
 
 export function ToolPage({ tool }: { tool: Tool }) {
@@ -90,8 +91,10 @@ export function ToolPage({ tool }: { tool: Tool }) {
     setBusy(true);
     clearOutput();
     try {
-      const extra =
-        tool.slug === "watermark-pdf" && fields.kind === "image" && mark ? { mark } : undefined;
+      // Watermark gambar memakai field "mark"; Sign PDF memakai PNG tanda tangan.
+const markForRequest =
+  tool.options === "watermark" ? fields.kind === "image" && mark : tool.options === "sign" && mark;
+const extra = markForRequest && mark ? { mark } : undefined;
       const output = tool.async
         ? await runJob(tool.slug, files)
         : await runTool(tool.endpoint, files, omitFields(fields, ["confirm"]), extra);
@@ -140,7 +143,14 @@ export function ToolPage({ tool }: { tool: Tool }) {
       {tool.options !== "none" ? (
         <section className="border-b border-line px-5 py-4 sm:px-[50px]">
           <h2 className="mb-3 text-[11px] font-bold text-[#e4e0e0]">Options</h2>
-          <ToolOptions fields={fields} kind={tool.options} mark={mark} onChange={changeField} onMarkFile={setMark} />
+          <ToolOptions
+            fields={fields}
+            kind={tool.options}
+            mark={mark}
+            onChange={changeField}
+            onMarkFile={setMark}
+            source={files[0] ?? null}
+          />
         </section>
       ) : null}
 
@@ -189,6 +199,10 @@ function validateFields(
     }
   }
   if (kind === "split" && fields.mode === "ranges" && !fields.ranges?.trim()) return "Enter page ranges.";
+  if (kind === "sign") {
+    if (!mark) return "Add your signature.";
+    if (!fields.x || !fields.y) return "Place the signature on the page.";
+  }
   return undefined;
 }
 

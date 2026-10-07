@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint --max-warnings 0",
+    "test": "bun test",
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
@@ -17,6 +18,7 @@
     "lucide-react": "^1.52.0",
     "motion": "^12.23.12",
     "next": "16.3.4",
+    "pdfjs-dist": "^6.4.299",
     "radix-ui": "^1.7.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -29,6 +31,7 @@
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "@tailwindcss/postcss": "^4.3.3",
+    "@types/bun": "^1.4.2",
     "@types/node": "26.4.1",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",

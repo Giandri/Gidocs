@@ -41,6 +41,7 @@ func main() {
 	r.Post("/api/unlock", apihandler.UnlockHandler)
 	r.Post("/api/watermark", apihandler.WatermarkHandler)
 	r.Post("/api/images-to-pdf", apihandler.ImagesToPDFHandler)
+	r.Post("/api/sign", apihandler.SignHandler)
 
 	r.Post("/api/jobs", apihandler.EnqueueJob)
 	r.Get("/api/jobs/{id}", apihandler.JobStatus)

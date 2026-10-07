@@ -1,4 +1,4 @@
-export type OptionKind = "none" | "split" | "compress" | "watermark" | "protect" | "page-size";
+export type OptionKind = "none" | "split" | "compress" | "watermark" | "protect" | "page-size" | "sign";
 
 export interface Tool {
   slug: string;
@@ -23,11 +23,26 @@ export const repository = "https://github.com/Giandri/Gidocs";
 
 export const navLinks = [
   { label: "GitHub", href: repository, external: true },
+  { label: "About", href: "/about" },
   { label: "Docs", href: "/#workflow" },
   { label: "Stars", href: `${repository}/stargazers`, external: true },
 ];
 
 export const tools: Tool[] = [
+  {
+    slug: "compress-pdf",
+    label: "Compress PDF",
+    title: "Compress PDF",
+    description: "Make a PDF smaller.",
+    accept: ".pdf",
+    multiple: false,
+    minFiles: 1,
+    maxFiles: 1,
+    endpoint: "/api/compress",
+    ready: true,
+    badge: "most",
+    options: "compress",
+  },
   {
     slug: "docx-to-pdf",
     label: "DOCX to PDF",
@@ -40,7 +55,6 @@ export const tools: Tool[] = [
     endpoint: "/api/jobs",
     ready: true,
     async: true,
-    badge: "most",
     options: "none",
   },
   {
@@ -82,21 +96,25 @@ export const tools: Tool[] = [
     maxFiles: 20,
     endpoint: "/api/images-to-pdf",
     ready: true,
+    badge: "most",
     options: "page-size",
   },
   {
-    slug: "compress-pdf",
-    label: "Compress PDF",
-    title: "Compress PDF",
-    description: "Make a PDF smaller.",
+    slug: "pdf-to-image",
+    label: "PDF to Images",
+    title: "PDF to Images",
+    description: "Export each PDF page as a PNG image.",
     accept: ".pdf",
     multiple: false,
     minFiles: 1,
     maxFiles: 1,
-    endpoint: "/api/compress",
+    endpoint: "/api/jobs",
     ready: true,
-    options: "compress",
+    async: true,
+    options: "none",
+    outputExt: ".zip",
   },
+
   {
     slug: "split-pdf",
     label: "Split PDF",
@@ -122,7 +140,6 @@ export const tools: Tool[] = [
     maxFiles: 20,
     endpoint: "/api/merge",
     ready: true,
-    badge: "new",
     options: "none",
   },
   {
@@ -149,6 +166,7 @@ export const tools: Tool[] = [
     maxFiles: 1,
     endpoint: "/api/protect",
     ready: true,
+    badge: "new",
     options: "protect",
   },
   {
@@ -160,9 +178,24 @@ export const tools: Tool[] = [
     multiple: false,
     minFiles: 1,
     maxFiles: 1,
-    endpoint: "",
-    ready: false,
+    endpoint: "/api/sign",
+    ready: true,
     badge: "new",
+    options: "sign",
+  },
+
+  {
+    slug: "ocr-pdf",
+    label: "OCR PDF",
+    title: "OCR PDF",
+    description: "Recognize text in a scanned PDF.",
+    accept: ".pdf",
+    multiple: false,
+    minFiles: 1,
+    maxFiles: 1,
+    endpoint: "/api/jobs",
+    ready: false,
+    async: true,
     options: "none",
   },
 ];

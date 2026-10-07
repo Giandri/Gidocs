@@ -1,6 +1,10 @@
 "use client";
 
+import { useState } from "react";
+
 import { downloadBlob, type RunResult } from "../../lib/api";
+import { canPreviewResult } from "../../lib/preview";
+import { ResultPreview } from "./result-preview";
 
 interface ResultPanelProps {
   error: string | null;
@@ -11,6 +15,8 @@ interface ResultPanelProps {
 }
 
 export function ResultPanel({ error, name, onReset, result }: ResultPanelProps) {
+  const [previewing, setPreviewing] = useState(false);
+
   if (error) {
     return (
       <p className="flex gap-2 text-[11px] leading-[1.8] text-error" role="alert">
@@ -53,6 +59,17 @@ export function ResultPanel({ error, name, onReset, result }: ResultPanelProps) 
         >
           Download
         </button>
+        {canPreviewResult(name || result.filename, result.blob.type) ? (
+          <button
+            aria-expanded={previewing}
+            className="min-h-[36px] border border-line px-4 text-[11px] text-ink transition-colors hover:border-white focus-visible:border-white focus-visible:outline-none"
+            data-testid="preview-toggle"
+            onClick={() => setPreviewing((open) => !open)}
+            type="button"
+          >
+            {previewing ? "Hide preview" : "Preview"}
+          </button>
+        ) : null}
         <button
           className="min-h-[36px] px-1 text-[11px] text-nav transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none"
           onClick={onReset}
@@ -61,6 +78,7 @@ export function ResultPanel({ error, name, onReset, result }: ResultPanelProps) 
           Start over
         </button>
       </div>
+      {previewing ? <ResultPreview onClose={() => setPreviewing(false)} result={result} /> : null}
     </div>
   );
 }

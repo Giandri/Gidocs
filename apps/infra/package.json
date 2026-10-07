@@ -1,0 +1,7 @@
+{
+  "name": "infra",
+  "private": true,
+  "scripts": {
+    "dev": "redis-server --save \"\""
+  }
+}

@@ -4,7 +4,7 @@ import { SiteFooter } from "@repo/ui/site-footer";
 import { SiteHeader } from "@repo/ui/site-header";
 
 import { Brand } from "../components/brand";
-import { navLinks, repository, tools } from "../lib/tools";
+import { navLinks, tools } from "../lib/tools";
 
 const workflow = ["Upload or drag your file into the tool.", "Adjust the options and click Run.", "Download the finished file."];
 
@@ -76,10 +76,11 @@ export default function Home() {
                 [+]
               </span>
               <span>
-                Gidocs is designed to help you work with sensitive documents. Review our{" "}
-                <a className="text-[#f3ab00] underline underline-offset-2 transition-colors hover:text-[#ffd36a]" href={`${repository}/blob/main/README.md`} rel="noreferrer" target="_blank">
+                Gidocs is designed to help you work with sensitive documents. It has no database and keeps no
+                files after your download. Read our{" "}
+                <Link className="text-[#f3ab00] underline underline-offset-2 transition-colors hover:text-[#ffd36a]" href="/about">
                   project details
-                </a>{" "}
+                </Link>{" "}
                 to learn more.
               </span>
             </p>
