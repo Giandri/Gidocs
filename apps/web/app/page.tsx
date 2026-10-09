@@ -4,6 +4,7 @@ import { SiteFooter } from "@repo/ui/site-footer";
 import { SiteHeader } from "@repo/ui/site-header";
 
 import { Brand } from "../components/brand";
+import Silk from "../components/Silk";
 import { navLinks, tools } from "../lib/tools";
 
 const workflow = ["Upload or drag your file into the tool.", "Adjust the options and click Run.", "Download the finished file."];
@@ -17,8 +18,18 @@ export default function Home() {
       <div className="w-full max-w-[684px] border-x border-line">
         <SiteHeader brand={<Brand />} links={navLinks} />
 
-        <section className="flex min-h-[280px] flex-col items-center justify-center border-b border-line px-5 py-16 text-start">
-          <div className="w-full max-w-[500px]">
+        <section className="relative flex min-h-[280px] flex-col items-center justify-center overflow-hidden border-b border-line px-5 py-16 text-start">
+          {/* Latar Silk hanya di hero; disembunyikan saat pengguna meminta reduced motion.
+              Gradien di bawah canvas adalah cadangan: kalau WebGL gagal di perangkat
+              itu, area hero tidak jadi hitam kosong. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(65%_65%_at_50%_35%,#3a3a3a_0%,#1c1c1c_55%,#0a0a0a_100%)] motion-reduce:hidden"
+          >
+            <Silk speed={5} scale={1} color="#363636" noiseIntensity={1.5} rotation={0} />
+          </div>
+
+          <div className="relative z-10 w-full max-w-[500px]">
             <h1 className="text-[21px] font-bold leading-[1.35] tracking-[-0.045em] text-[#e7e3e3] sm:text-[24px]">The open source PDF &amp; Document Tools</h1>
             <p className=" text-[10px] text-[#969191] sm:text-[11px]">Gidocs brings useful tools for PDF files and documents into one simple place. Choose what you need and follow the steps.</p>
           </div>
@@ -76,8 +87,7 @@ export default function Home() {
                 [+]
               </span>
               <span>
-                Gidocs is designed to help you work with sensitive documents. It has no database and keeps no
-                files after your download. Read our{" "}
+                Gidocs is designed to help you work with sensitive documents. It has no database and keeps no files after your download. Read our{" "}
                 <Link className="text-[#f3ab00] underline underline-offset-2 transition-colors hover:text-[#ffd36a]" href="/about">
                   project details
                 </Link>{" "}

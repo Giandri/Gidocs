@@ -5,11 +5,11 @@ import { SiteHeader } from "@repo/ui/site-header";
 
 import { Brand } from "../../components/brand";
 import { navLinks, repository } from "../../lib/tools";
+import Silk from "@/components/Silk";
 
 export const metadata: Metadata = {
   title: "About - Gidocs",
-  description:
-    "Why Gidocs exists: open source PDF tools that keep sensitive documents out of public storage by using no database and no permanent file storage.",
+  description: "Why Gidocs exists: open source PDF tools that keep sensitive documents out of public storage by using no database and no permanent file storage.",
 };
 
 const sections = [
@@ -33,9 +33,7 @@ const sections = [
   },
   {
     heading: "What Gidocs deliberately does not do",
-    body: [
-      "No accounts and no billing. No saved history. No shareable links. No long-term storage of your documents. These are not features waiting to be unlocked later; they are the reason the project is built this way.",
-    ],
+    body: ["No accounts and no billing. No saved history. No shareable links. No long-term storage of your documents. These are not features waiting to be unlocked later; they are the reason the project is built this way."],
   },
   {
     heading: "Honest limits",
@@ -51,15 +49,15 @@ export default function AboutPage() {
     <main className="flex min-h-screen w-full flex-col items-center bg-black font-mono text-[#d5d2d2]">
       <div className="w-full max-w-[684px] border-x border-line">
         <SiteHeader brand={<Brand />} links={navLinks} />
-
+        <section className="border-b border-line px-5 py-3 sm:px-[50px]">
+          <a className="text-[10px] text-nav transition-colors hover:text-white sm:text-[11px]" href="/">
+            {"<"} Back to tools
+          </a>
+        </section>
         <section className="border-b border-line px-5 py-12 text-start sm:px-[50px] sm:py-14">
           <div className="w-full max-w-[584px]">
-            <h1 className="text-[21px] font-bold leading-[1.35] tracking-[-0.045em] text-[#e7e3e3] sm:text-[24px]">
-              About Gidocs
-            </h1>
-            <p className="mt-2 text-[10px] leading-[1.9] text-[#969191] sm:text-[11px]">
-              Open source PDF and document tools that keep sensitive documents out of public storage.
-            </p>
+            <h1 className="text-[21px] font-bold leading-[1.35] tracking-[-0.045em] text-[#e7e3e3] sm:text-[24px]">About Gidocs</h1>
+            <p className="mt-2 text-[10px] leading-[1.9] text-[#969191] sm:text-[11px]">Open source PDF and document tools that keep sensitive documents out of public storage.</p>
           </div>
         </section>
 
@@ -69,10 +67,10 @@ export default function AboutPage() {
               <h2 className="text-[11px] font-bold text-[#e4e0e0] sm:text-xs">{section.heading}</h2>
               {section.body.map((paragraph) => (
                 <p className="mt-2 flex gap-2 text-[10px] leading-[1.9] text-[#a29d9d] sm:text-[11px]" key={paragraph}>
-                  <span className="shrink-0 font-bold text-[#f3ab00]" aria-hidden="true">
+                  <span className="shrink-0 font-bold text-justify text-[#f3ab00]" aria-hidden="true">
                     [+]
                   </span>
-                  <span>{paragraph}</span>
+                  <span className="text-justify">{paragraph}</span>
                 </p>
               ))}
             </div>
@@ -82,18 +80,13 @@ export default function AboutPage() {
         <section className="border-b border-line px-5 py-6 sm:px-[50px] sm:py-5">
           <div className="w-full max-w-[584px] text-left">
             <h2 className="text-[11px] font-bold text-[#e4e0e0] sm:text-xs">Open source</h2>
-            <p className="mt-2 flex gap-2 text-[10px] leading-[1.9] text-[#a29d9d] sm:text-[11px]">
+            <p className="mt-2 flex gap-2 text-[10px] text-justify leading-[1.9] text-[#a29d9d] sm:text-[11px]">
               <span className="shrink-0 font-bold text-[#f3ab00]" aria-hidden="true">
                 [+]
               </span>
               <span>
                 Read the source, run it yourself, or help improve it on{" "}
-                <a
-                  className="text-[#f3ab00] underline underline-offset-2 transition-colors hover:text-[#ffd36a]"
-                  href={repository}
-                  rel="noreferrer"
-                  target="_blank"
-                >
+                <a className="text-[#f3ab00] underline underline-offset-2 transition-colors hover:text-[#ffd36a]" href={repository} rel="noreferrer" target="_blank">
                   GitHub
                 </a>
                 . Gidocs is released under the AGPL-3.0 license.

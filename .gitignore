@@ -65,6 +65,7 @@ TASKS.MD
 PRD.MD
 AGENTS.MD
 DESIGN.MD
+DeployBackend.MD
 
 # Editors
 .vscode/*

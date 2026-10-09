@@ -5,6 +5,17 @@
 @custom-variant dark (&:is(.dark *));
 @source "../../../packages/ui/src";
 
+/* Pita informasi berjalan: geser separuh lebar karena konten digandakan. */
+@keyframes gidocs-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 @theme {
   --color-bg: #000000;
   --color-line: #252525;
@@ -22,7 +33,9 @@
 html,
 body {
   max-width: 100vw;
-  overflow-x: hidden;
+  /* clip, bukan hidden: overflow-x hidden membuat body menjadi scroll container
+     sehingga position: sticky pada header tidak menempel ke viewport. */
+  overflow-x: clip;
 }
 
 .imgDark {
