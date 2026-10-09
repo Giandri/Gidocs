@@ -36,6 +36,16 @@ body {
   /* clip, bukan hidden: overflow-x hidden membuat body menjadi scroll container
      sehingga position: sticky pada header tidak menempel ke viewport. */
   overflow-x: clip;
+
+  /* Scrollbar disembunyikan, halaman tetap bisa di-scroll (wheel, sentuh,
+     tombol panah, PgUp/PgDn, atau Home/End). */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
 }
 
 .imgDark {

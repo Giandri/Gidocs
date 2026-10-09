@@ -19,14 +19,8 @@ export default function Home() {
         <SiteHeader brand={<Brand />} links={navLinks} />
 
         <section className="relative flex min-h-[280px] flex-col items-center justify-center overflow-hidden border-b border-line px-5 py-16 text-start">
-          {/* Latar Silk hanya di hero; disembunyikan saat pengguna meminta reduced motion.
-              Gradien di bawah canvas adalah cadangan: kalau WebGL gagal di perangkat
-              itu, area hero tidak jadi hitam kosong. */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(65%_65%_at_50%_35%,#3a3a3a_0%,#1c1c1c_55%,#0a0a0a_100%)] motion-reduce:hidden"
-          >
-            <Silk speed={5} scale={1} color="#363636" noiseIntensity={1.5} rotation={0} />
+          <div aria-hidden className="pointer-events-none absolute inset-0 z-0  motion-reduce:hidden">
+            <Silk speed={15} scale={1} color="#363636" noiseIntensity={1.0} rotation={0} />
           </div>
 
           <div className="relative z-10 w-full max-w-[500px]">
